@@ -13,7 +13,7 @@ Last updated: 22 Sep 2026
 | 0 | Foundation (schema, roles, org switcher) | **Mostly done** |
 | 1 | Payroll (biggest stress) | **UI + calc done** |
 | 2 | Treasurer Page (bank + reconciliation) | **UI done** |
-| 3 | Expenses + Reimbursements | Planned |
+| 3 | Expenses + Reimbursements | **UI done** |
 | 4 | Monthly Payments + Control Report | Planned |
 | 5 | Southdale Departments & Registers | Planned |
 | 6 | Bambanani Programmes & Impact | Planned |
@@ -55,9 +55,6 @@ Gross | Travel Allowance | Bonus | Pension | Housing Allowance (fringe) | Medica
 - `src/lib/payrollCalc.ts`
 - `src/pages/Payroll.tsx`
 
-### Acceptance
-Karren or Carol can create a payroll run, see auto-calculated PAYE/UIF, move status to Approved, and print a clean payslip.
-
 ---
 
 ## Phase 2 — Treasurer Page
@@ -65,10 +62,10 @@ Karren or Carol can create a payroll run, see auto-calculated PAYE/UIF, move sta
 **Status:** UI complete (local state). Still needs Supabase persistence + CSV upload.
 
 - [x] Colour highlight + category dropdown + notes for unclear payments
-- [x] Opening balance (previous month) + closing balance validation (green/red)
+- [x] Opening balance + closing balance validation (green/red)
 - [x] Pre-loaded category list matching Karren’s monthly payments
 - [ ] Upload bank statement (CSV)
-- [ ] Link bank lines to `money_movements` / `bank_transactions` tables
+- [ ] Link bank lines to `money_movements` / `bank_transactions`
 - [ ] Save reconciliation record
 
 ### Files
@@ -78,10 +75,27 @@ Karren or Carol can create a payroll run, see auto-calculated PAYE/UIF, move sta
 
 ## Phase 3 — Expenses & Reimbursements
 
-- Mandatory **Who purchased?** field on every expense
-- Receipt upload or “Missing receipt” + explanation
-- Special toggle: “No receipt – prepaid airtime/WiFi”
-- Reimbursement status: pending → approved → paid
+**Status:** UI complete (local state). Still needs Supabase persistence + file upload.
+
+### Expenses
+- [x] Mandatory **Who purchased?** field (blocks save if empty)
+- [x] Receipt status: Attached | Missing | No receipt – prepaid
+- [x] Explanation required when "No receipt – prepaid" is selected
+- [x] Allocation: Southdale / Bambanani / Shared
+- [x] Category list matching monthly payments + feeding/stationery
+- [ ] Receipt photo upload to Storage
+- [ ] Persist to `expenses` table
+
+### Reimbursements
+- [x] Requester + amount + bank details
+- [x] Same receipt status options including no-receipt airtime/WiFi
+- [x] Status flow: pending → approved → paid (Treasurer/Full Admin only)
+- [ ] Persist to `reimbursements` table
+- [ ] Document upload
+
+### Files
+- `src/pages/Expenses.tsx`
+- `src/pages/Reimbursements.tsx`
 
 ---
 
