@@ -11,12 +11,12 @@ Last updated: 22 Sep 2026
 | Phase | Focus | Status |
 |-------|-------|--------|
 | 0 | Foundation (schema, roles, org switcher) | **Mostly done** |
-| 1 | Payroll (biggest stress) | **UI + calc done** |
-| 2 | Treasurer Page (bank + reconciliation) | **UI done** |
+| 1 | Payroll | **UI + calc done** |
+| 2 | Treasurer Page | **UI done** |
 | 3 | Expenses + Reimbursements | **UI done** |
 | 4 | Monthly Payments + Control Report | **UI done** |
-| 5 | Southdale Departments & Registers | Planned |
-| 6 | Bambanani Programmes & Impact | Planned |
+| 5 | Southdale Departments & Registers | **UI done** |
+| 6 | Bambanani Programmes & Impact | **UI done** |
 | 7 | Documents, full reporting, polish | Planned |
 | 8 | Testing with Carol + Karren → train Pastor Mike | Planned |
 
@@ -24,97 +24,44 @@ Last updated: 22 Sep 2026
 
 ## Phase 0 — Foundation
 
-- [x] Combined architecture & schema designed
-- [x] Repository created (`shemesh-hub`)
-- [x] Migration files written (`0001`–`0005`)
-- [x] Hub landing page (two org cards)
-- [x] Org context switcher + permission helpers
-- [x] `SETUP.md` with exact steps for Supabase
-- [x] `seed.sql` for linking Karren / Carol / Pastor Mike
-- [ ] Supabase project created & migrations applied *(you do this)*
-- [ ] Real Auth users + memberships inserted *(you do this)*
+- [x] Schema, repo, Hub, org context, SETUP.md, seed.sql
+- [ ] Supabase project + Auth users *(you do this)*
 
 ---
 
-## Phase 1 — Payroll
+## Phase 1–4 — Finance core
 
-**Status:** Calculation engine + UI complete. Still needs Supabase save/load.
-
-Files: `0003_payroll.sql`, `payrollCalc.ts`, `Payroll.tsx`
-
----
-
-## Phase 2 — Treasurer Page
-
-**Status:** UI complete. Still needs Supabase + CSV upload.
-
-Files: `Treasurer.tsx`
-
----
-
-## Phase 3 — Expenses & Reimbursements
-
-**Status:** UI complete. Still needs Supabase + file upload.
-
-- Mandatory "Who purchased?"
-- No-receipt prepaid airtime/WiFi with required explanation
-- Reimbursement status: pending → approved → paid
-
-Files: `Expenses.tsx`, `Reimbursements.tsx`
-
----
-
-## Phase 4 — Monthly Payments + Control Report
-
-**Status:** UI complete. Still needs live data from money_movements.
-
-### Monthly Payments
-- [x] Pre-loaded Southdale list from Karren (Water & Lights, Wifi, Telkom, Carguard, SA Rangers, Insurance, General Maintenance, Fuel, Baptist Union, Theological College, Moller Family, Pieter Loots, POP Thailand, Salary, Repairs, Bank Charges)
-- [x] Editable amounts + planned/paid toggle
-- [x] Add unforeseen / bi-annual / once-off
-- [ ] Persist to `monthly_payments` table
-
-### Monthly Control Report (printable)
-```
-Opening Balance (Current + Investment)
-+ Total Income
-− Total Operating Expenses
-= Surplus / Deficit
-− Transfers Current → Investment
-+ Transfers Investment → Current
-− Asset / Bus Purchases
-= Closing Current + Closing Investment = Combined Cash
-+ Uncleared Items
-```
-- [x] Layout matches Requirements Register v0.2
-- [x] Print button (hides chrome via `.no-print`)
-- [x] Demo figures editable until live aggregates are wired
-- [ ] Auto-pull from `money_movements`
-
-Files: `MonthlyPayments.tsx`, `Reports.tsx`
+All UI complete: Payroll, Treasurer, Expenses, Reimbursements, Monthly Payments, Control Report.
+Still need Supabase persistence.
 
 ---
 
 ## Phase 5 — Southdale Departments & Registers
 
-Departments:
-- Sunday Service (roster: Door Duty, Leader, Preacher, Offering, Music)
-- Sunday School (Preschool, Gr1-3, Gr4-6, Gr7-9) + teachers + stationery stock
-- Junior Youth / Senior Youth
-- Music Department (4 teams + sound)
-- Missions (Local 23 / Cross-border 23 / International 4-6)
-- Ladies / Mens Fellowship
-- Bible Study / Prayer
+**Status:** UI complete.
 
-Each teacher keeps attendance + birthday register → sent to Karren as Superintendent.
+- [x] All 11 departments from Karren pre-loaded with schedule + leaders + notes
+- [x] Sunday Service, Sunday School (Superintendent notes), Junior/Senior Youth, Music, Missions, Ladies, Mens, Bible Study, Prayer, Social Care
+- [x] Quick register / attendance note entry per department
+- [x] Dedicated Missions page: Local (~23) / Cross-border (~23) / International (4–6), cooking team, budget, participants
+- [ ] Full roster builder, birthday registers, stationery stock
+- [ ] Persist to departments / registers / missions tables
+
+Files: `Departments.tsx`, `Missions.tsx`
 
 ---
 
-## Phase 6 — Bambanani Programmes
+## Phase 6 — Bambanani Programmes & Impact
 
-Dorcas Wardrobe, Dorcas Pantry, Soup Kitchen, Home for the Blind, Yellow Mountain, Booysens, Hong Ning, Karina, Annie Burger, Bellavista, Chrisville Women & Children.
+**Status:** UI complete.
 
-Need: headcount, meals served, stock allocation, impact reporting.
+- [x] All 11 programmes pre-loaded (Dorcas Wardrobe/Pantry, Soup Kitchen, Home for the Blind, Yellow Mountain, Booysens, Hong Ning, Karina, Annie Burger, Bellavista, Chrisville)
+- [x] Log activity: date, headcount, meals served, notes
+- [x] Per-programme totals + this-month impact summary cards
+- [ ] Stock allocation + donor links
+- [ ] Persist to programmes / beneficiaries tables
+
+Files: `Programmes.tsx`
 
 ---
 
