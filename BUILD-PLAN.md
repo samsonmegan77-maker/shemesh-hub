@@ -10,9 +10,9 @@ Last updated: 22 Sep 2026
 
 | Phase | Focus | Status |
 |-------|-------|--------|
-| 0 | Foundation (schema, roles, org switcher) | **In progress** |
-| 1 | Payroll (biggest stress) | Next |
-| 2 | Treasurer Page (bank + reconciliation) | Planned |
+| 0 | Foundation (schema, roles, org switcher) | **Mostly done** |
+| 1 | Payroll (biggest stress) | **UI + calc done** |
+| 2 | Treasurer Page (bank + reconciliation) | **UI done** |
 | 3 | Expenses + Reimbursements | Planned |
 | 4 | Monthly Payments + Control Report | Planned |
 | 5 | Southdale Departments & Registers | Planned |
@@ -22,21 +22,23 @@ Last updated: 22 Sep 2026
 
 ---
 
-## Phase 0 — Foundation (current)
+## Phase 0 — Foundation
 
 - [x] Combined architecture & schema designed
 - [x] Repository created (`shemesh-hub`)
-- [x] Migration files written
-- [ ] Supabase project created & migrations applied
-- [ ] Real Auth users + memberships inserted
-- [ ] Basic Hub landing page (two org cards)
-- [ ] Org context switcher working
+- [x] Migration files written (`0001`–`0005`)
+- [x] Hub landing page (two org cards)
+- [x] Org context switcher + permission helpers
+- [x] `SETUP.md` with exact steps for Supabase
+- [x] `seed.sql` for linking Karren / Carol / Pastor Mike
+- [ ] Supabase project created & migrations applied *(you do this)*
+- [ ] Real Auth users + memberships inserted *(you do this)*
 
 ---
 
 ## Phase 1 — Payroll (Karren’s #1 pain)
 
-**Goal:** Eliminate manual tax tables and typed payslips.
+**Status:** Calculation engine + UI complete. Still needs Supabase save/load.
 
 ### Required fields
 Gross | Travel Allowance | Bonus | Pension | Housing Allowance (fringe) | Medical Aid (fringe) | PAYE | UIF | Net | Leave due
@@ -52,7 +54,6 @@ Gross | Travel Allowance | Bonus | Pension | Housing Allowance (fringe) | Medica
 - `supabase/migrations/0003_payroll.sql`
 - `src/lib/payrollCalc.ts`
 - `src/pages/Payroll.tsx`
-- `src/pages/PayslipDetail.tsx`
 
 ### Acceptance
 Karren or Carol can create a payroll run, see auto-calculated PAYE/UIF, move status to Approved, and print a clean payslip.
@@ -61,10 +62,17 @@ Karren or Carol can create a payroll run, see auto-calculated PAYE/UIF, move sta
 
 ## Phase 2 — Treasurer Page
 
-- Upload bank statement (CSV/PDF later)
-- Colour highlight + category dropdown + notes for unclear payments
-- Opening balance (previous month) + closing balance validation (green/red)
-- Link bank lines to money_movements
+**Status:** UI complete (local state). Still needs Supabase persistence + CSV upload.
+
+- [x] Colour highlight + category dropdown + notes for unclear payments
+- [x] Opening balance (previous month) + closing balance validation (green/red)
+- [x] Pre-loaded category list matching Karren’s monthly payments
+- [ ] Upload bank statement (CSV)
+- [ ] Link bank lines to `money_movements` / `bank_transactions` tables
+- [ ] Save reconciliation record
+
+### Files
+- `src/pages/Treasurer.tsx`
 
 ---
 
