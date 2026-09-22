@@ -1,10 +1,10 @@
-# SheMesh Hub — Setup Guide (Steps 2, 3, 4)
+# SheMesh Hub — Setup Guide
 
 Follow this exact order.
 
 ---
 
-## 2. Create Supabase project & run migrations
+## 1. Create Supabase project & run migrations
 
 1. Go to [https://supabase.com](https://supabase.com) → New project.
 2. Name it something like `shemesh-hub` (dedicated project — do not share with other apps).
@@ -21,7 +21,7 @@ Follow this exact order.
 
 ---
 
-## 3. Create Auth users (real emails)
+## 2. Create Auth users (real emails)
 
 In Supabase Dashboard → **Authentication** → **Users** → **Add user**:
 
@@ -36,10 +36,10 @@ In Supabase Dashboard → **Authentication** → **Users** → **Add user**:
 
 ---
 
-## 4. Link users to organisations (seed)
+## 3. Link users to organisations (seed)
 
 1. Open `supabase/seed.sql`.
-2. Replace the three placeholder UUIDs with the real ones from step 3.
+2. Replace the three placeholder UUIDs with the real ones from step 2.
 3. Update Carol’s and Pastor Mike’s email addresses if you have the real ones.
 4. Paste the whole file into the SQL Editor and run it.
 5. Verify:
@@ -56,7 +56,7 @@ You should see 6 rows (3 people × 2 orgs).
 
 ---
 
-## Environment variables
+## 4. Environment variables
 
 In the repo root:
 
@@ -77,16 +77,62 @@ Never put the **service_role** key in the frontend.
 
 ---
 
-## Storage bucket (for receipts later)
+## 5. Storage bucket (Phase 7 — Documents)
 
-Dashboard → Storage → New bucket:
-- Name: `organisation-documents`
-- Public: **No** (private)
-- Then add policies so only org members can read/write their own folder.
+Dashboard → **Storage** → **New bucket**:
+
+| Setting | Value |
+|---------|--------|
+| Name | `organisation-documents` |
+| Public | **No** (private) |
+| File size limit | e.g. 10 MB |
+| Allowed MIME | `application/pdf`, `image/*` |
+
+### Path convention
+
+```
+{organisation_id}/{entity_type}/{record_id}/{filename}
+```
+
+Examples:
+- `a1b2c3.../expense/uuid/receipt-2026-09-12.jpg`
+- `a1b2c3.../bank_statement/uuid/july-statement.pdf`
+- `a1b2c3.../minutes/uuid/deacons-sep-2026.pdf`
+
+### Suggested storage policies (SQL Editor)
+
+After the bucket exists, run policies so only authenticated org members can access files under their organisation folder. Example pattern (adjust to your exact helper functions):
+
+```sql
+-- Allow authenticated users to upload to paths they are allowed to see
+-- (Refine with organisation_id checks once client always prefixes with org id)
+
+create policy "authenticated upload"
+on storage.objects for insert
+to authenticated
+with check (bucket_id = 'organisation-documents');
+
+create policy "authenticated read own org paths"
+on storage.objects for select
+to authenticated
+using (bucket_id = 'organisation-documents');
+
+create policy "authenticated update"
+on storage.objects for update
+to authenticated
+using (bucket_id = 'organisation-documents');
+
+create policy "authenticated delete"
+on storage.objects for delete
+to authenticated
+using (bucket_id = 'organisation-documents');
+```
+
+Tighten these later so the first folder segment must match an organisation the user belongs to.
 
 ---
 
-## Run the app locally
+## 6. Run the app locally
 
 ```bash
 npm install
