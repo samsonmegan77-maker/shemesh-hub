@@ -6,6 +6,9 @@ import Expenses from './pages/Expenses';
 import Reimbursements from './pages/Reimbursements';
 import MonthlyPayments from './pages/MonthlyPayments';
 import Reports from './pages/Reports';
+import Departments from './pages/Departments';
+import Missions from './pages/Missions';
+import Programmes from './pages/Programmes';
 import { OrgContext, derivePermissions, type Organisation, type OrgRole } from './lib/orgContext';
 
 const ORGS: Record<string, Organisation> = {
@@ -29,7 +32,10 @@ type Page =
   | 'expenses'
   | 'reimbursements'
   | 'payments'
-  | 'reports';
+  | 'reports'
+  | 'departments'
+  | 'missions'
+  | 'programmes';
 
 export default function App() {
   const [currentOrg, setCurrentOrg] = useState<Organisation | null>(null);
@@ -37,6 +43,8 @@ export default function App() {
   const [page, setPage] = useState<Page>('hub');
 
   const permissions = useMemo(() => derivePermissions(role), [role]);
+  const isSouthdale = currentOrg?.short_code === 'southdale';
+  const isBambanani = currentOrg?.short_code === 'bambanani';
 
   const ctx = {
     organisation: currentOrg,
@@ -92,6 +100,9 @@ export default function App() {
             {permissions.canAccessFinance && navBtn('payments', 'Payments')}
             {permissions.canAccessFinance && navBtn('reports', 'Reports')}
             {permissions.canAccessPayroll && navBtn('payroll', 'Payroll')}
+            {isSouthdale && navBtn('departments', 'Departments')}
+            {isSouthdale && navBtn('missions', 'Missions')}
+            {isBambanani && navBtn('programmes', 'Programmes')}
           </nav>
         </header>
 
@@ -157,14 +168,33 @@ export default function App() {
                     <p className="text-sm text-slate-500 mt-1">Auto PAYE / UIF</p>
                   </button>
                 )}
-                <div className="bg-white border rounded-xl p-4">
-                  <h3 className="font-semibold">Operations</h3>
-                  <p className="text-sm text-slate-500 mt-1">
-                    {currentOrg.short_code === 'southdale'
-                      ? 'Departments, registers, missions'
-                      : 'Programmes, feeding, stock, impact'}
-                  </p>
-                </div>
+                {isSouthdale && (
+                  <button
+                    onClick={() => setPage('departments')}
+                    className="bg-white border rounded-xl p-4 text-left hover:border-blue-300"
+                  >
+                    <h3 className="font-semibold">Departments</h3>
+                    <p className="text-sm text-slate-500 mt-1">Sunday School, Youth, Music, Prayer…</p>
+                  </button>
+                )}
+                {isSouthdale && (
+                  <button
+                    onClick={() => setPage('missions')}
+                    className="bg-white border rounded-xl p-4 text-left hover:border-rose-300"
+                  >
+                    <h3 className="font-semibold">Missions</h3>
+                    <p className="text-sm text-slate-500 mt-1">Local / Cross-border / International</p>
+                  </button>
+                )}
+                {isBambanani && (
+                  <button
+                    onClick={() => setPage('programmes')}
+                    className="bg-white border rounded-xl p-4 text-left hover:border-emerald-300"
+                  >
+                    <h3 className="font-semibold">Programmes</h3>
+                    <p className="text-sm text-slate-500 mt-1">Outreach, headcount, meals, impact</p>
+                  </button>
+                )}
               </div>
             </div>
           )}
@@ -174,6 +204,9 @@ export default function App() {
           {page === 'payments' && <MonthlyPayments />}
           {page === 'reports' && <Reports />}
           {page === 'payroll' && <Payroll />}
+          {page === 'departments' && <Departments />}
+          {page === 'missions' && <Missions />}
+          {page === 'programmes' && <Programmes />}
         </main>
       </div>
     </OrgContext.Provider>
