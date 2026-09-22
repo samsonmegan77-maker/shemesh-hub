@@ -4,6 +4,8 @@ import Payroll from './pages/Payroll';
 import Treasurer from './pages/Treasurer';
 import Expenses from './pages/Expenses';
 import Reimbursements from './pages/Reimbursements';
+import MonthlyPayments from './pages/MonthlyPayments';
+import Reports from './pages/Reports';
 import { OrgContext, derivePermissions, type Organisation, type OrgRole } from './lib/orgContext';
 
 const ORGS: Record<string, Organisation> = {
@@ -19,7 +21,15 @@ const ORGS: Record<string, Organisation> = {
   },
 };
 
-type Page = 'hub' | 'dashboard' | 'treasurer' | 'payroll' | 'expenses' | 'reimbursements';
+type Page =
+  | 'hub'
+  | 'dashboard'
+  | 'treasurer'
+  | 'payroll'
+  | 'expenses'
+  | 'reimbursements'
+  | 'payments'
+  | 'reports';
 
 export default function App() {
   const [currentOrg, setCurrentOrg] = useState<Organisation | null>(null);
@@ -78,7 +88,9 @@ export default function App() {
             {navBtn('dashboard', 'Dashboard')}
             {permissions.canAccessFinance && navBtn('treasurer', 'Treasurer')}
             {permissions.canCreateExpenses && navBtn('expenses', 'Expenses')}
-            {permissions.canCreateExpenses && navBtn('reimbursements', 'Reimbursements')}
+            {permissions.canCreateExpenses && navBtn('reimbursements', 'Reimburse')}
+            {permissions.canAccessFinance && navBtn('payments', 'Payments')}
+            {permissions.canAccessFinance && navBtn('reports', 'Reports')}
             {permissions.canAccessPayroll && navBtn('payroll', 'Payroll')}
           </nav>
         </header>
@@ -118,6 +130,24 @@ export default function App() {
                     <p className="text-sm text-slate-500 mt-1">Including no-receipt airtime/WiFi</p>
                   </button>
                 )}
+                {permissions.canAccessFinance && (
+                  <button
+                    onClick={() => setPage('payments')}
+                    className="bg-white border rounded-xl p-4 text-left hover:border-indigo-400"
+                  >
+                    <h3 className="font-semibold">Monthly Payments</h3>
+                    <p className="text-sm text-slate-500 mt-1">Standard list + unforeseen / bi-annual</p>
+                  </button>
+                )}
+                {permissions.canAccessFinance && (
+                  <button
+                    onClick={() => setPage('reports')}
+                    className="bg-white border rounded-xl p-4 text-left hover:border-slate-400"
+                  >
+                    <h3 className="font-semibold">Control Report</h3>
+                    <p className="text-sm text-slate-500 mt-1">Printable monthly financial summary</p>
+                  </button>
+                )}
                 {permissions.canAccessPayroll && (
                   <button
                     onClick={() => setPage('payroll')}
@@ -141,6 +171,8 @@ export default function App() {
           {page === 'treasurer' && <Treasurer />}
           {page === 'expenses' && <Expenses />}
           {page === 'reimbursements' && <Reimbursements />}
+          {page === 'payments' && <MonthlyPayments />}
+          {page === 'reports' && <Reports />}
           {page === 'payroll' && <Payroll />}
         </main>
       </div>
