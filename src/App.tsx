@@ -5,10 +5,12 @@ import Treasurer from './pages/Treasurer';
 import Expenses from './pages/Expenses';
 import Reimbursements from './pages/Reimbursements';
 import MonthlyPayments from './pages/MonthlyPayments';
-import Reports from './pages/Reports';
+import ReportsHub from './pages/ReportsHub';
 import Departments from './pages/Departments';
 import Missions from './pages/Missions';
 import Programmes from './pages/Programmes';
+import Documents from './pages/Documents';
+import Minutes from './pages/Minutes';
 import { OrgContext, derivePermissions, type Organisation, type OrgRole } from './lib/orgContext';
 
 const ORGS: Record<string, Organisation> = {
@@ -35,7 +37,9 @@ type Page =
   | 'reports'
   | 'departments'
   | 'missions'
-  | 'programmes';
+  | 'programmes'
+  | 'documents'
+  | 'minutes';
 
 export default function App() {
   const [currentOrg, setCurrentOrg] = useState<Organisation | null>(null);
@@ -103,6 +107,8 @@ export default function App() {
             {isSouthdale && navBtn('departments', 'Departments')}
             {isSouthdale && navBtn('missions', 'Missions')}
             {isBambanani && navBtn('programmes', 'Programmes')}
+            {navBtn('minutes', 'Minutes')}
+            {navBtn('documents', 'Documents')}
           </nav>
         </header>
 
@@ -155,8 +161,8 @@ export default function App() {
                     onClick={() => setPage('reports')}
                     className="bg-white border rounded-xl p-4 text-left hover:border-slate-400"
                   >
-                    <h3 className="font-semibold">Control Report</h3>
-                    <p className="text-sm text-slate-500 mt-1">Printable monthly financial summary</p>
+                    <h3 className="font-semibold">Reports</h3>
+                    <p className="text-sm text-slate-500 mt-1">Control, donations, YTD, attendance…</p>
                   </button>
                 )}
                 {permissions.canAccessPayroll && (
@@ -195,6 +201,20 @@ export default function App() {
                     <p className="text-sm text-slate-500 mt-1">Outreach, headcount, meals, impact</p>
                   </button>
                 )}
+                <button
+                  onClick={() => setPage('minutes')}
+                  className="bg-white border rounded-xl p-4 text-left hover:border-indigo-300"
+                >
+                  <h3 className="font-semibold">Minutes of Meeting</h3>
+                  <p className="text-sm text-slate-500 mt-1">Activity + actions + financials</p>
+                </button>
+                <button
+                  onClick={() => setPage('documents')}
+                  className="bg-white border rounded-xl p-4 text-left hover:border-slate-300"
+                >
+                  <h3 className="font-semibold">Documents</h3>
+                  <p className="text-sm text-slate-500 mt-1">Receipts, invoices, policies, minutes</p>
+                </button>
               </div>
             </div>
           )}
@@ -202,11 +222,13 @@ export default function App() {
           {page === 'expenses' && <Expenses />}
           {page === 'reimbursements' && <Reimbursements />}
           {page === 'payments' && <MonthlyPayments />}
-          {page === 'reports' && <Reports />}
+          {page === 'reports' && <ReportsHub />}
           {page === 'payroll' && <Payroll />}
           {page === 'departments' && <Departments />}
           {page === 'missions' && <Missions />}
           {page === 'programmes' && <Programmes />}
+          {page === 'minutes' && <Minutes />}
+          {page === 'documents' && <Documents />}
         </main>
       </div>
     </OrgContext.Provider>
