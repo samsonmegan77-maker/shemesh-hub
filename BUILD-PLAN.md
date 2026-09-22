@@ -14,7 +14,7 @@ Last updated: 22 Sep 2026
 | 1 | Payroll (biggest stress) | **UI + calc done** |
 | 2 | Treasurer Page (bank + reconciliation) | **UI done** |
 | 3 | Expenses + Reimbursements | **UI done** |
-| 4 | Monthly Payments + Control Report | Planned |
+| 4 | Monthly Payments + Control Report | **UI done** |
 | 5 | Southdale Departments & Registers | Planned |
 | 6 | Bambanani Programmes & Impact | Planned |
 | 7 | Documents, full reporting, polish | Planned |
@@ -36,77 +36,45 @@ Last updated: 22 Sep 2026
 
 ---
 
-## Phase 1 — Payroll (Karren’s #1 pain)
+## Phase 1 — Payroll
 
 **Status:** Calculation engine + UI complete. Still needs Supabase save/load.
 
-### Required fields
-Gross | Travel Allowance | Bonus | Pension | Housing Allowance (fringe) | Medical Aid (fringe) | PAYE | UIF | Net | Leave due
-
-### Logic
-- PAYE: SARS 2025/2026 tax tables (auto)
-- UIF: 1% of remuneration, capped at R177.12 (2025/26)
-- Fringe benefits deducted before PAYE calculation
-- Status flow: Draft → Review → Approved (only Treasurer/Full Admin can approve)
-- Printable payslip with organisation details
-
-### Files
-- `supabase/migrations/0003_payroll.sql`
-- `src/lib/payrollCalc.ts`
-- `src/pages/Payroll.tsx`
+Files: `0003_payroll.sql`, `payrollCalc.ts`, `Payroll.tsx`
 
 ---
 
 ## Phase 2 — Treasurer Page
 
-**Status:** UI complete (local state). Still needs Supabase persistence + CSV upload.
+**Status:** UI complete. Still needs Supabase + CSV upload.
 
-- [x] Colour highlight + category dropdown + notes for unclear payments
-- [x] Opening balance + closing balance validation (green/red)
-- [x] Pre-loaded category list matching Karren’s monthly payments
-- [ ] Upload bank statement (CSV)
-- [ ] Link bank lines to `money_movements` / `bank_transactions`
-- [ ] Save reconciliation record
-
-### Files
-- `src/pages/Treasurer.tsx`
+Files: `Treasurer.tsx`
 
 ---
 
 ## Phase 3 — Expenses & Reimbursements
 
-**Status:** UI complete (local state). Still needs Supabase persistence + file upload.
+**Status:** UI complete. Still needs Supabase + file upload.
 
-### Expenses
-- [x] Mandatory **Who purchased?** field (blocks save if empty)
-- [x] Receipt status: Attached | Missing | No receipt – prepaid
-- [x] Explanation required when "No receipt – prepaid" is selected
-- [x] Allocation: Southdale / Bambanani / Shared
-- [x] Category list matching monthly payments + feeding/stationery
-- [ ] Receipt photo upload to Storage
-- [ ] Persist to `expenses` table
+- Mandatory "Who purchased?"
+- No-receipt prepaid airtime/WiFi with required explanation
+- Reimbursement status: pending → approved → paid
 
-### Reimbursements
-- [x] Requester + amount + bank details
-- [x] Same receipt status options including no-receipt airtime/WiFi
-- [x] Status flow: pending → approved → paid (Treasurer/Full Admin only)
-- [ ] Persist to `reimbursements` table
-- [ ] Document upload
-
-### Files
-- `src/pages/Expenses.tsx`
-- `src/pages/Reimbursements.tsx`
+Files: `Expenses.tsx`, `Reimbursements.tsx`
 
 ---
 
 ## Phase 4 — Monthly Payments + Control Report
 
-Pre-load standard payments for Southdale:
-Water & Lights (CoJ), Wifi, Telkom, Carguard, SA Rangers, Insurance, General Maintenance, Fuel, Baptist Union, Theological College, Moller Family, Pieter Loots, POP Thailand, Salary, Repairs, Bank Charges
+**Status:** UI complete. Still needs live data from money_movements.
 
-Buttons: + Unforeseen | + Bi-annual | + Once-off
+### Monthly Payments
+- [x] Pre-loaded Southdale list from Karren (Water & Lights, Wifi, Telkom, Carguard, SA Rangers, Insurance, General Maintenance, Fuel, Baptist Union, Theological College, Moller Family, Pieter Loots, POP Thailand, Salary, Repairs, Bank Charges)
+- [x] Editable amounts + planned/paid toggle
+- [x] Add unforeseen / bi-annual / once-off
+- [ ] Persist to `monthly_payments` table
 
-**Monthly Control Report (printable):**
+### Monthly Control Report (printable)
 ```
 Opening Balance (Current + Investment)
 + Total Income
@@ -118,6 +86,12 @@ Opening Balance (Current + Investment)
 = Closing Current + Closing Investment = Combined Cash
 + Uncleared Items
 ```
+- [x] Layout matches Requirements Register v0.2
+- [x] Print button (hides chrome via `.no-print`)
+- [x] Demo figures editable until live aggregates are wired
+- [ ] Auto-pull from `money_movements`
+
+Files: `MonthlyPayments.tsx`, `Reports.tsx`
 
 ---
 
@@ -138,7 +112,6 @@ Each teacher keeps attendance + birthday register → sent to Karren as Superint
 
 ## Phase 6 — Bambanani Programmes
 
-Already partially built in previous pilot:
 Dorcas Wardrobe, Dorcas Pantry, Soup Kitchen, Home for the Blind, Yellow Mountain, Booysens, Hong Ning, Karina, Annie Burger, Bellavista, Chrisville Women & Children.
 
 Need: headcount, meals served, stock allocation, impact reporting.
@@ -159,17 +132,6 @@ Need: headcount, meals served, stock allocation, impact reporting.
 2. Confirm donor / inventory / outreach workflows
 3. Karren trains Pastor Mike
 4. Monthly payment to SheMesh Tribe (once Deacons sign off)
-
----
-
-## Notes from Karren (17–21 Sep 2026)
-
-- Payroll is currently the biggest stress and fear of error.
-- Lost receipts and “someone else shopped” is a real problem → “Who purchased?” is mandatory.
-- Airtime/WiFi reimbursements often have no receipt.
-- Investment account kept around R50 000; excess transferred.
-- Governance / Minutes of Meeting tab already loved in the pilot.
-- They are happy with a modest monthly contribution once the system is live.
 
 ---
 
