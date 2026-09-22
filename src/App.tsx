@@ -1,6 +1,7 @@
 import { useState, useMemo } from 'react';
 import Hub from './pages/Hub';
 import Payroll from './pages/Payroll';
+import Treasurer from './pages/Treasurer';
 import { OrgContext, derivePermissions, type Organisation, type OrgRole } from './lib/orgContext';
 
 // Temporary mock organisations (replace with real Supabase query later)
@@ -21,7 +22,7 @@ export default function App() {
   const [currentOrg, setCurrentOrg] = useState<Organisation | null>(null);
   // Temporary role for testing — later comes from organisation_memberships
   const [role] = useState<OrgRole>('full_admin');
-  const [page, setPage] = useState<'hub' | 'payroll' | 'dashboard'>('hub');
+  const [page, setPage] = useState<'hub' | 'payroll' | 'treasurer' | 'dashboard'>('hub');
 
   const permissions = useMemo(() => derivePermissions(role), [role]);
 
@@ -68,6 +69,14 @@ export default function App() {
             >
               Dashboard
             </button>
+            {permissions.canAccessFinance && (
+              <button
+                onClick={() => setPage('treasurer')}
+                className={`px-3 py-1 rounded ${page === 'treasurer' ? 'bg-slate-800 text-white' : 'hover:bg-slate-100'}`}
+              >
+                Treasurer
+              </button>
+            )}
             {permissions.canAccessPayroll && (
               <button
                 onClick={() => setPage('payroll')}
@@ -87,10 +96,17 @@ export default function App() {
                 Working in <strong>{currentOrg.name}</strong>. All data is filtered to this organisation only.
               </p>
               <div className="grid md:grid-cols-3 gap-4">
-                <div className="bg-white border rounded-xl p-4">
-                  <h3 className="font-semibold">Finance</h3>
-                  <p className="text-sm text-slate-500 mt-1">Bank, expenses, reimbursements, monthly payments</p>
-                </div>
+                {permissions.canAccessFinance && (
+                  <button
+                    onClick={() => setPage('treasurer')}
+                    className="bg-white border rounded-xl p-4 text-left hover:border-blue-400"
+                  >
+                    <h3 className="font-semibold">Treasurer</h3>
+                    <p className="text-sm text-slate-500 mt-1">
+                      Bank statements, colour coding, balance check
+                    </p>
+                  </button>
+                )}
                 {permissions.canAccessPayroll && (
                   <button
                     onClick={() => setPage('payroll')}
@@ -111,6 +127,7 @@ export default function App() {
               </div>
             </div>
           )}
+          {page === 'treasurer' && <Treasurer />}
           {page === 'payroll' && <Payroll />}
         </main>
       </div>
