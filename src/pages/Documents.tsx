@@ -1,5 +1,6 @@
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useOrg } from '../lib/orgContext';
+import { loadJson, saveJson, orgKey } from '../lib/localStore';
 import { FolderOpen, Upload, FileText } from 'lucide-react';
 
 interface Doc {
@@ -8,6 +9,7 @@ interface Doc {
   entityType: string;
   uploadedAt: string;
   notes: string;
+  fileName?: string;
 }
 
 const ENTITY_TYPES = [
@@ -23,25 +25,37 @@ const ENTITY_TYPES = [
 
 export default function Documents() {
   const { organisation, canAccessFinance } = useOrg();
-  const [docs, setDocs] = useState<Doc[]>([]);
+  const storageKey = orgKey(organisation?.id, 'documents');
+  const fileRef = useRef<HTMLInputElement>(null);
+
+  const [docs, setDocs] = useState<Doc[]>(() => loadJson<Doc[]>(storageKey, []));
   const [name, setName] = useState('');
   const [entityType, setEntityType] = useState('Expense receipt');
   const [notes, setNotes] = useState('');
+  const [pickedFile, setPickedFile] = useState('');
+
+  useEffect(() => {
+    saveJson(storageKey, docs);
+  }, [docs, storageKey]);
 
   function add() {
-    if (!name.trim()) return;
+    const label = name.trim() || pickedFile;
+    if (!label) return;
     setDocs((prev) => [
       {
         id: crypto.randomUUID(),
-        name: name.trim(),
+        name: label,
         entityType,
         uploadedAt: new Date().toISOString().slice(0, 10),
         notes,
+        fileName: pickedFile || undefined,
       },
       ...prev,
     ]);
     setName('');
     setNotes('');
+    setPickedFile('');
+    if (fileRef.current) fileRef.current.value = '';
   }
 
   return (
@@ -51,23 +65,18 @@ export default function Documents() {
         <h1 className="text-2xl font-bold">Documents</h1>
       </div>
       <p className="text-sm text-slate-500 mb-6">
-        {organisation?.name} • Private storage path:{" "}
-        <code className="text-xs bg-slate-100 px-1 rounded">
-          {'{org_id}/{entity_type}/{id}/{filename}'}
-        </code>
+        {organisation?.name} · Register receipts & statements · Saved on this device until cloud storage is connected
       </p>
 
       <section className="bg-white border rounded-xl p-5 mb-6 space-y-3">
         <h2 className="font-semibold text-sm">Register a document</h2>
         <p className="text-xs text-slate-500">
-          File upload to Supabase Storage will be wired after the private bucket{" "}
-          <strong>organisation-documents</strong> is created (see SETUP.md). For now you can log the
-          record so the audit trail is ready.
+          Choose a file from your phone/computer to record the name. Cloud upload comes later; the register stays here so nothing is lost.
         </p>
         <div className="grid md:grid-cols-2 gap-3">
           <input
             className="border rounded-lg px-3 py-2 text-sm"
-            placeholder="File name (e.g. July-bank-statement.pdf)"
+            placeholder="Display name (e.g. July bank statement)"
             value={name}
             onChange={(e) => setName(e.target.value)}
           />
@@ -77,11 +86,31 @@ export default function Documents() {
             onChange={(e) => setEntityType(e.target.value)}
           >
             {ENTITY_TYPES.map((t) => (
-              <option key={t} value={t}>
-                {t}
-              </option>
+              <option key={t} value={t}>{t}</option>
             ))}
           </select>
+        </div>
+        <div className="flex flex-wrap gap-2 items-center">
+          <button
+            type="button"
+            onClick={() => fileRef.current?.click()}
+            className="flex items-center gap-1 border text-sm px-3 py-1.5 rounded-lg"
+          >
+            <Upload size={14} /> Choose file
+          </button>
+          <input
+            ref={fileRef}
+            type="file"
+            className="hidden"
+            onChange={(e) => {
+              const f = e.target.files?.[0];
+              if (f) {
+                setPickedFile(f.name);
+                if (!name.trim()) setName(f.name);
+              }
+            }}
+          />
+          {pickedFile && <span className="text-xs text-slate-600">{pickedFile}</span>}
         </div>
         <input
           className="border rounded-lg px-3 py-2 text-sm w-full"
@@ -108,6 +137,7 @@ export default function Documents() {
                 <p className="font-medium text-sm">{d.name}</p>
                 <p className="text-xs text-slate-500">
                   {d.entityType} · {d.uploadedAt}
+                  {d.fileName && ` · file: ${d.fileName}`}
                   {d.notes && ` · ${d.notes}`}
                 </p>
               </div>
@@ -118,7 +148,7 @@ export default function Documents() {
 
       {!canAccessFinance && (
         <p className="text-xs text-amber-700 mt-4">
-          Some document types may be restricted to Treasurer / Full Admin once RLS is fully applied.
+          Some document types may be restricted to Treasurer / Full Admin later.
         </p>
       )}
     </div>
