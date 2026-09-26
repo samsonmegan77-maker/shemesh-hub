@@ -93,7 +93,7 @@ export default function Hub({ onEnter, onLogout, userName }: HubProps) {
         <footer className="mt-10 text-center text-xs text-slate-400">
           <p>Karren MacKenzie • Carol Lai • Pastor Michael Ford Ho</p>
           <p className="mt-1">
-            Data boundary enforced by organisation_id + RLS
+            SheMesh Tribe LLC • Data boundary enforced by organisation_id + RLS
           </p>
         </footer>
       </main>
