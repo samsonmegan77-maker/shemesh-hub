@@ -1,57 +1,44 @@
 # SheMesh Hub — Build Plan
 
-Single source of truth for Megan, Romano, Karren and Carol.
-
-Last updated: 23 Sep 2026
-
----
+Last updated: 26 Sep 2026
 
 ## Phase Overview
 
-| Phase | Focus | Status |
-|-------|-------|--------|
-| 0 | Foundation | **Done** |
-| 1 | Payroll | **Done (UI + calc + history + printable payslip)** |
-| 2 | Treasurer | **Done (UI + CSV import + balance check)** |
-| 3 | Expenses + Reimbursements | **Done** |
-| 4 | Monthly Payments + Petty Cash + Control Report | **Done** |
-| 5 | Southdale Departments & Missions | **Done (rosters, registers, birthdays, stock)** |
-| 6 | Bambanani Programmes & Impact | **UI done** |
-| 7 | Documents + reporting + Minutes | **Done (file pick + sample reports)** |
-| 8 | Testing with Carol + Karren → train Pastor Mike | **Next** |
-| 9 | Supabase connection | **Deferred (by request)** |
+| Phase | Focus | Status on GitHub/Vercel |
+|-------|-------|-------------------------|
+| 0 | Foundation + demo login | **Done** |
+| 1 | Payroll + payslip history + print | **Done** |
+| 2 | Treasurer + **working CSV import** | **Done** |
+| 3 | Expenses (Who purchased?) + persistence | **Done** |
+| 4 | Petty Cash + Monthly Payments + Reimbursements | **UI Done** (Petty Cash persists; others may need refresh-safe pass) |
+| 5 | Departments (roster, birthdays, stationery) | **Basic UI on GitHub** · full tabs still local |
+| 6 | Bambanani Programmes | **UI done** |
+| 7 | Documents + Minutes + Reports | **UI done** |
+| 8 | Testing with Carol + Karren | **Next** |
+| 9 | Supabase multi-device DB + Storage | **Needs your Supabase project keys** |
 
----
+## Done on live repo (26 Sep 2026)
 
-## Completed without Supabase (23 Sep 2026)
+- Demo login: Karren / Carol / Pastor Mike with roles
+- Payroll: history, Draft→Review→Approved, **printable payslip**, localStorage
+- Treasurer: balance check, colour coding, **working CSV upload**, localStorage
+- Expenses: **Who purchased?** required, localStorage
+- Petty Cash: debit-card lines + slips, localStorage
+- csvParse + localStore helpers
 
-- Demo login screen (Karren / Carol / Pastor Mike) with correct roles per org
-- localStorage persistence for all finance & department data (survives refresh)
-- Payroll: multi-record history, Draft → Review → Approved, full printable payslip
-- Treasurer: CSV bank statement import (Date/Description/Amount or Debit/Credit)
-- Petty Cash screen (debit-card summary + slips)
-- Departments: Register (attendance, birthdays, parent details), Weekly roster, Stationery stock
-- Documents: choose file from device + register by name
-- Reports: sample figures for Donations, Expenses, Income, Investment, YTD, Attendance
-- Role-gated navigation
+## Still needs work / your input
 
----
+1. **Full Departments** (roster / birthdays / parent details / stationery stock tabs) — enhanced file exists locally; push remaining if needed
+2. **localStorage** on Reimbursements, Monthly Payments, Minutes, Documents — UI works; persistence pass incomplete on some screens
+3. **Supabase** — shared multi-device data + private Storage for receipts:
+   - Create project at supabase.com
+   - Run migrations in `supabase/migrations/`
+   - Set `VITE_SUPABASE_URL` and `VITE_SUPABASE_ANON_KEY` on Vercel
+   - Create Storage bucket `organisation-documents`
 
-## Still requires Supabase (not done — per request)
+## Definition of Done (when Supabase connected)
 
-- Real Auth (email login)
-- Shared multi-device database (RLS)
-- File upload to private Storage bucket
-- Live report aggregates from DB
-- Minutes auto-pull from registers / Control Report
-
----
-
-## Definition of Done for any module
-
-- Reads and writes real Supabase data (when connected)
-- Respects organisation_id + RLS
-- Role permissions enforced
-- Works on a phone
-- Clear empty / error / loading states
-- Print-friendly where relevant
+- Auth email login
+- Data shared across phones
+- Files in private bucket
+- RLS by organisation_id
