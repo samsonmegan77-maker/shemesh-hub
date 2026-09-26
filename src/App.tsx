@@ -13,6 +13,10 @@ import Programmes from './pages/Programmes';
 import Documents from './pages/Documents';
 import Minutes from './pages/Minutes';
 import PettyCash from './pages/PettyCash';
+import LeaveBook from './pages/LeaveBook';
+import TaxBook from './pages/TaxBook';
+import Investments from './pages/Investments';
+import Budgets from './pages/Budgets';
 import {
   OrgContext,
   derivePermissions,
@@ -24,55 +28,27 @@ import {
 import { loadJson, saveJson } from './lib/localStore';
 
 const ORGS: Record<string, Organisation> = {
-  southdale: {
-    id: 'southdale-id',
-    name: 'Southdale Baptist Church',
-    short_code: 'southdale',
-  },
-  bambanani: {
-    id: 'bambanani-id',
-    name: 'Bambanani Community Care',
-    short_code: 'bambanani',
-  },
+  southdale: { id: 'southdale-id', name: 'Southdale Baptist Church', short_code: 'southdale' },
+  bambanani: { id: 'bambanani-id', name: 'Bambanani Community Care', short_code: 'bambanani' },
 };
 
 type Page =
-  | 'hub'
-  | 'dashboard'
-  | 'treasurer'
-  | 'payroll'
-  | 'expenses'
-  | 'reimbursements'
-  | 'payments'
-  | 'reports'
-  | 'departments'
-  | 'missions'
-  | 'programmes'
-  | 'documents'
-  | 'minutes'
-  | 'pettycash';
+  | 'hub' | 'dashboard' | 'treasurer' | 'payroll' | 'expenses' | 'reimbursements'
+  | 'payments' | 'reports' | 'departments' | 'missions' | 'programmes'
+  | 'documents' | 'minutes' | 'pettycash' | 'leavebook' | 'taxbook' | 'investments' | 'budgets';
 
 export default function App() {
-  const [user, setUser] = useState<UserProfile | null>(() =>
-    loadJson<UserProfile | null>('shemesh:user', null)
-  );
+  const [user, setUser] = useState<UserProfile | null>(() => loadJson<UserProfile | null>('shemesh:user', null));
   const [currentOrg, setCurrentOrg] = useState<Organisation | null>(null);
   const [role, setRole] = useState<OrgRole | null>(null);
   const [page, setPage] = useState<Page>('hub');
 
-  useEffect(() => {
-    saveJson('shemesh:user', user);
-  }, [user]);
+  useEffect(() => { saveJson('shemesh:user', user); }, [user]);
 
   useEffect(() => {
-    if (!user || !currentOrg) {
-      setRole(null);
-      return;
-    }
+    if (!user || !currentOrg) { setRole(null); return; }
     const demo = DEMO_USERS.find((u) => u.id === user.id);
-    if (demo) {
-      setRole(demo.roles[currentOrg.short_code]);
-    }
+    if (demo) setRole(demo.roles[currentOrg.short_code]);
   }, [user, currentOrg]);
 
   const permissions = useMemo(() => derivePermissions(role), [role]);
@@ -80,13 +56,8 @@ export default function App() {
   const isBambanani = currentOrg?.short_code === 'bambanani';
 
   const ctx = {
-    organisation: currentOrg,
-    role,
-    user,
-    setOrganisation: setCurrentOrg,
-    setRole,
-    setUser,
-    ...permissions,
+    organisation: currentOrg, role, user,
+    setOrganisation: setCurrentOrg, setRole, setUser, ...permissions,
   };
 
   function enterOrg(code: 'southdale' | 'bambanani') {
@@ -95,18 +66,11 @@ export default function App() {
   }
 
   function logout() {
-    setUser(null);
-    setCurrentOrg(null);
-    setRole(null);
-    setPage('hub');
+    setUser(null); setCurrentOrg(null); setRole(null); setPage('hub');
   }
 
   if (!user) {
-    return (
-      <OrgContext.Provider value={ctx}>
-        <Login onLogin={setUser} />
-      </OrgContext.Provider>
-    );
+    return (<OrgContext.Provider value={ctx}><Login onLogin={setUser} /></OrgContext.Provider>);
   }
 
   if (page === 'hub' || !currentOrg) {
@@ -118,13 +82,8 @@ export default function App() {
   }
 
   const navBtn = (id: Page, label: string) => (
-    <button
-      key={id}
-      onClick={() => setPage(id)}
-      className={`px-3 py-1 rounded ${page === id ? 'bg-slate-800 text-white' : 'hover:bg-slate-100'}`}
-    >
-      {label}
-    </button>
+    <button key={id} onClick={() => setPage(id)}
+      className={`px-3 py-1 rounded ${page === id ? 'bg-slate-800 text-white' : 'hover:bg-slate-100'}`}>{label}</button>
   );
 
   return (
@@ -132,19 +91,9 @@ export default function App() {
       <div className="min-h-screen bg-slate-50 flex flex-col">
         <header className="bg-white border-b px-4 py-3 flex items-center justify-between flex-wrap gap-2">
           <div className="flex items-center gap-3">
-            <button
-              onClick={() => {
-                setCurrentOrg(null);
-                setPage('hub');
-              }}
-              className="text-sm text-slate-500 hover:text-slate-800"
-            >
-              ← Hub
-            </button>
+            <button onClick={() => { setCurrentOrg(null); setPage('hub'); }} className="text-sm text-slate-500 hover:text-slate-800">← Hub</button>
             <span className="font-semibold">{currentOrg.name}</span>
-            <span className="text-xs text-slate-400 hidden sm:inline">
-              {user.fullName} · {roleLabel(role)}
-            </span>
+            <span className="text-xs text-slate-400 hidden sm:inline">{user.fullName} · {roleLabel(role)}</span>
           </div>
           <nav className="flex flex-wrap gap-1 text-sm">
             {navBtn('dashboard', 'Dashboard')}
@@ -153,6 +102,10 @@ export default function App() {
             {permissions.canCreateExpenses && navBtn('reimbursements', 'Reimburse')}
             {permissions.canAccessFinance && navBtn('payments', 'Payments')}
             {permissions.canAccessFinance && navBtn('pettycash', 'Petty Cash')}
+            {permissions.canAccessFinance && navBtn('leavebook', 'Leave')}
+            {permissions.canAccessFinance && navBtn('taxbook', 'Tax book')}
+            {permissions.canAccessFinance && navBtn('investments', 'Invest')}
+            {permissions.canAccessFinance && navBtn('budgets', 'Budgets')}
             {permissions.canAccessFinance && navBtn('reports', 'Reports')}
             {permissions.canAccessPayroll && navBtn('payroll', 'Payroll')}
             {isSouthdale && permissions.canManageDepartments && navBtn('departments', 'Departments')}
@@ -160,12 +113,7 @@ export default function App() {
             {isBambanani && navBtn('programmes', 'Programmes')}
             {navBtn('minutes', 'Minutes')}
             {navBtn('documents', 'Documents')}
-            <button
-              onClick={logout}
-              className="px-3 py-1 rounded text-slate-500 hover:bg-red-50 hover:text-red-700"
-            >
-              Log out
-            </button>
+            <button onClick={logout} className="px-3 py-1 rounded text-slate-500 hover:bg-red-50 hover:text-red-700">Log out</button>
           </nav>
         </header>
 
@@ -174,10 +122,8 @@ export default function App() {
             <div className="p-6">
               <h1 className="text-2xl font-bold mb-2">Dashboard</h1>
               <p className="text-slate-600 mb-4">
-                Working in <strong>{currentOrg.name}</strong> as{' '}
-                <strong>{user.fullName}</strong> ({roleLabel(role)}). All data is
-                filtered to this organisation only. Data is saved in this browser
-                until Supabase is connected.
+                Working in <strong>{currentOrg.name}</strong> as <strong>{user.fullName}</strong> ({roleLabel(role)}).
+                Data is saved in this browser until Supabase is connected.
               </p>
               <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
                 {permissions.canAccessFinance && (
@@ -207,13 +153,37 @@ export default function App() {
                 {permissions.canAccessFinance && (
                   <button onClick={() => setPage('pettycash')} className="bg-white border rounded-xl p-4 text-left hover:border-teal-400">
                     <h3 className="font-semibold">Petty Cash</h3>
-                    <p className="text-sm text-slate-500 mt-1">Debit-card summary + slips (no physical cash)</p>
+                    <p className="text-sm text-slate-500 mt-1">Debit-card summary + slips</p>
+                  </button>
+                )}
+                {permissions.canAccessFinance && (
+                  <button onClick={() => setPage('leavebook')} className="bg-white border rounded-xl p-4 text-left hover:border-teal-300">
+                    <h3 className="font-semibold">Leave book</h3>
+                    <p className="text-sm text-slate-500 mt-1">Annual & sick leave record</p>
+                  </button>
+                )}
+                {permissions.canAccessFinance && (
+                  <button onClick={() => setPage('taxbook')} className="bg-white border rounded-xl p-4 text-left hover:border-amber-300">
+                    <h3 className="font-semibold">Tax & fringe book</h3>
+                    <p className="text-sm text-slate-500 mt-1">Pension, PAYE, fringe benefits</p>
+                  </button>
+                )}
+                {permissions.canAccessFinance && (
+                  <button onClick={() => setPage('investments')} className="bg-white border rounded-xl p-4 text-left hover:border-emerald-300">
+                    <h3 className="font-semibold">Investments</h3>
+                    <p className="text-sm text-slate-500 mt-1">Deposits, interest, transfers</p>
+                  </button>
+                )}
+                {permissions.canAccessFinance && (
+                  <button onClick={() => setPage('budgets')} className="bg-white border rounded-xl p-4 text-left hover:border-rose-300">
+                    <h3 className="font-semibold">Budgets</h3>
+                    <p className="text-sm text-slate-500 mt-1">Yearly department budgets</p>
                   </button>
                 )}
                 {permissions.canAccessFinance && (
                   <button onClick={() => setPage('reports')} className="bg-white border rounded-xl p-4 text-left hover:border-slate-400">
                     <h3 className="font-semibold">Reports</h3>
-                    <p className="text-sm text-slate-500 mt-1">Control, donations, YTD, attendance…</p>
+                    <p className="text-sm text-slate-500 mt-1">Control snapshot from this device</p>
                   </button>
                 )}
                 {permissions.canAccessPayroll && (
@@ -237,7 +207,7 @@ export default function App() {
                 {isBambanani && (
                   <button onClick={() => setPage('programmes')} className="bg-white border rounded-xl p-4 text-left hover:border-emerald-300">
                     <h3 className="font-semibold">Programmes</h3>
-                    <p className="text-sm text-slate-500 mt-1">Outreach, headcount, meals, impact</p>
+                    <p className="text-sm text-slate-500 mt-1">Outreach, headcount, meals, stock</p>
                   </button>
                 )}
                 <button onClick={() => setPage('minutes')} className="bg-white border rounded-xl p-4 text-left hover:border-indigo-300">
@@ -256,6 +226,10 @@ export default function App() {
           {page === 'reimbursements' && <Reimbursements />}
           {page === 'payments' && <MonthlyPayments />}
           {page === 'pettycash' && <PettyCash />}
+          {page === 'leavebook' && <LeaveBook />}
+          {page === 'taxbook' && <TaxBook />}
+          {page === 'investments' && <Investments />}
+          {page === 'budgets' && <Budgets />}
           {page === 'reports' && <ReportsHub />}
           {page === 'payroll' && <Payroll />}
           {page === 'departments' && <Departments />}
