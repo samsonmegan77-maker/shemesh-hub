@@ -17,6 +17,9 @@ import LeaveBook from './pages/LeaveBook';
 import TaxBook from './pages/TaxBook';
 import Investments from './pages/Investments';
 import Budgets from './pages/Budgets';
+import DataBackup from './pages/DataBackup';
+import UsageLog from './pages/UsageLog';
+import { trackUsage } from './lib/usage';
 import {
   OrgContext,
   derivePermissions,
@@ -35,7 +38,7 @@ const ORGS: Record<string, Organisation> = {
 type Page =
   | 'hub' | 'dashboard' | 'treasurer' | 'payroll' | 'expenses' | 'reimbursements'
   | 'payments' | 'reports' | 'departments' | 'missions' | 'programmes'
-  | 'documents' | 'minutes' | 'pettycash' | 'leavebook' | 'taxbook' | 'investments' | 'budgets';
+  | 'documents' | 'minutes' | 'pettycash' | 'leavebook' | 'taxbook' | 'investments' | 'budgets' | 'databackup' | 'usagelog';
 
 export default function App() {
   const [user, setUser] = useState<UserProfile | null>(() => loadJson<UserProfile | null>('shemesh:user', null));
@@ -50,6 +53,34 @@ export default function App() {
     const demo = DEMO_USERS.find((u) => u.id === user.id);
     if (demo) setRole(demo.roles[currentOrg.short_code]);
   }, [user, currentOrg]);
+
+  useEffect(() => {
+    trackUsage('app_open', {});
+  }, []);
+
+  useEffect(() => {
+    if (!user) return;
+    trackUsage('login', { userId: user.id, userName: user.fullName });
+  }, [user?.id]);
+
+  useEffect(() => {
+    if (!user || !currentOrg) return;
+    trackUsage('org_enter', {
+      userId: user.id,
+      userName: user.fullName,
+      org: currentOrg.short_code,
+    });
+  }, [user?.id, currentOrg?.short_code]);
+
+  useEffect(() => {
+    if (!user || !currentOrg) return;
+    trackUsage('page_view', {
+      userId: user.id,
+      userName: user.fullName,
+      org: currentOrg.short_code,
+      page,
+    });
+  }, [page, user?.id, currentOrg?.short_code]);
 
   const permissions = useMemo(() => derivePermissions(role), [role]);
   const isSouthdale = currentOrg?.short_code === 'southdale';
@@ -66,6 +97,7 @@ export default function App() {
   }
 
   function logout() {
+    if (user) trackUsage('logout', { userId: user.id, userName: user.fullName, org: currentOrg?.short_code });
     setUser(null); setCurrentOrg(null); setRole(null); setPage('hub');
   }
 
@@ -113,6 +145,8 @@ export default function App() {
             {isBambanani && navBtn('programmes', 'Programmes')}
             {navBtn('minutes', 'Minutes')}
             {navBtn('documents', 'Documents')}
+            {permissions.canAccessFinance && navBtn('databackup', 'Backup')}
+            {role === 'full_admin' && navBtn('usagelog', 'Usage')}
             <button onClick={logout} className="px-3 py-1 rounded text-slate-500 hover:bg-red-50 hover:text-red-700">Log out</button>
           </nav>
         </header>
@@ -123,7 +157,7 @@ export default function App() {
               <h1 className="text-2xl font-bold mb-2">Dashboard</h1>
               <p className="text-slate-600 mb-4">
                 Working in <strong>{currentOrg.name}</strong> as <strong>{user.fullName}</strong> ({roleLabel(role)}).
-                Data is saved in this browser until Supabase is connected.
+                Data is saved in this browser only. Use Backup to export a copy.
               </p>
               <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
                 {permissions.canAccessFinance && (
@@ -218,6 +252,12 @@ export default function App() {
                   <h3 className="font-semibold">Documents</h3>
                   <p className="text-sm text-slate-500 mt-1">Receipts, invoices, policies, minutes</p>
                 </button>
+                {permissions.canAccessFinance && (
+                  <button onClick={() => setPage('databackup')} className="bg-white border rounded-xl p-4 text-left hover:border-slate-400">
+                    <h3 className="font-semibold">Data backup</h3>
+                    <p className="text-sm text-slate-500 mt-1">Export / import JSON for this organisation</p>
+                  </button>
+                )}
               </div>
             </div>
           )}
@@ -237,6 +277,8 @@ export default function App() {
           {page === 'programmes' && <Programmes />}
           {page === 'minutes' && <Minutes />}
           {page === 'documents' && <Documents />}
+          {page === 'databackup' && <DataBackup />}
+          {page === 'usagelog' && <UsageLog />}
         </main>
       </div>
     </OrgContext.Provider>
