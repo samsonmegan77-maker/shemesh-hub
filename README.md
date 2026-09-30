@@ -2,6 +2,8 @@
 
 **One login. Two organisations. Strict data separation. No cloud required.**
 
+**Authors:** Romano Samson & Megan Robyn Samson · **Licence:** MIT (see `LICENSE`)
+
 Unified operational system for:
 
 - **Southdale Baptist Church**
@@ -11,48 +13,22 @@ Built for Karren MacKenzie, Carol Lai and Pastor Michael Ford Ho.
 
 ---
 
-## What this edition is
+## Project overview
 
 Complete **local-only** edition. Everything runs in the browser:
 
-- All modules work end-to-end with full create + delete
+- All modules work end-to-end with create + delete
 - Data saved in **localStorage**, scoped by organisation
 - Southdale data never appears in Bambanani (and vice versa)
 - **Data backup** module: export / import JSON between devices
-- **No Supabase**, no server for app data, no monthly cloud bill
-- **Usage tracking** so the builder can see when someone opens the app
+- Usage tracking for builder visibility (navigation metadata only)
 
----
+## Prerequisites
 
-## Users & Roles
+- Node.js 20+
+- npm 10+
 
-| Person | Southdale | Bambanani |
-|--------|-----------|-----------|
-| **Karren MacKenzie** | Full Admin | Full Admin |
-| **Carol Lai** | Treasurer / Finance | Treasurer / Finance |
-| **Michael Ford Ho** | Expense + Church Admin | Expense Admin |
-
----
-
-## Modules
-
-1. Payroll — auto PAYE/UIF, fringe, Draft→Review→Approved, printable payslip
-2. Treasurer — bank lines, CSV import, colour coding, balance check
-3. Expenses — mandatory "Who purchased?", receipt status
-4. Reimbursements — no-receipt prepaid airtime/WiFi, approve/pay
-5. Monthly Payments — standard + unforeseen / bi-annual / once-off
-6. Petty Cash — debit-card summary + slips
-7. Leave book, Tax & fringe book, Investments, Budgets
-8. Departments — registers, roster, stationery (Southdale)
-9. Missions — local / cross-border / international + safety/medical (Southdale)
-10. Programmes — headcount, meals, pantry stock (Bambanani)
-11. Documents register, Minutes of Meeting, Reports (live totals from local data)
-12. **Data backup** — export / import / clear per organisation
-13. **Usage log** (Full Admin) + remote Vercel logs
-
----
-
-## Quick start
+## Local setup
 
 ```bash
 npm install
@@ -62,50 +38,35 @@ npm run dev
 Open the URL shown. Choose a user, then Southdale or Bambanani.
 
 ```bash
+npm test
 npm run build   # → dist/
 ```
 
 Deploy `dist/` to any static host (Vercel, Netlify, GitHub Pages).
 
----
+Optional cloud path: see `SETUP.md` and `supabase/migrations/` (not required for local edition).
 
-## Important
+## Architecture summary
 
-- Data lives **only** in the current browser until you export a backup.
-- Clearing site data or switching devices without a backup = data loss.
-- Always use **Backup → Download backup JSON** before major changes.
-- Each organisation has its own data store. They never mix.
+| Concern | Approach |
+|---------|----------|
+| Local state | **localStorage** with `shemesh:{orgId}:{suffix}` keys |
+| Isolation | Strict per-organisation key scoping |
+| Payroll | Pure SA PAYE/UIF helpers (`src/lib/payrollCalc.ts`) |
+| Backup | Export / import / clear per org |
+| Optional API | Vercel `api/usage.js` for usage events only |
 
----
+See **[ARCHITECTURE.md](./ARCHITECTURE.md)** for persistence, workflows, and fallbacks.
 
-## Usage tracking (builder only)
+## Operational status
 
-The app reports lightweight events so you can see **when** someone uses it and **which demo user / org / page**.
+**Complete for local use** (no Supabase required). Cloud / multi-device sync
+deliberately omitted for this edition. Last reviewed: Sep 2026.
 
-### What is logged
-- App open
-- Login (demo user name)
-- Organisation entered (Southdale / Bambanani)
-- Page views
-- Logout
+## Security
 
-### Where to read it
-
-1. **Vercel Logs (real remote visits)**  
-   Project → **Logs** → filter `SHEMESH-USAGE`  
-   Each event includes user, org, page, time, session id.
-
-2. **In-app Usage page** (Full Admin only)  
-   Shows the local ring buffer for the current browser.
-
-3. **Optional Discord / Slack ping**  
-   In Vercel → Settings → Environment Variables, add:
-   ```
-   USAGE_WEBHOOK_URL=https://discord.com/api/webhooks/...
-   ```
-   Redeploy after setting. Server forwards each event as a short message.
-
-No personal church financial data is sent — only navigation/session metadata.
+Vulnerability reports: see [`.github/SECURITY.md`](./.github/SECURITY.md)  
+Primary contact: **romanosamson3@gmail.com**
 
 ---
 
