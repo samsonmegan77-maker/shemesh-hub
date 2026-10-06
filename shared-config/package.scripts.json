@@ -1,0 +1,8 @@
+{
+  "_comment": "Canonical scripts for SheMesh Vite apps. Copy into package.json scripts.",
+  "dev": "vite",
+  "build": "vite build",
+  "preview": "vite preview",
+  "test": "vitest run",
+  "test:watch": "vitest"
+}
