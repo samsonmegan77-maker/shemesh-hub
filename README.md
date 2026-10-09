@@ -2,7 +2,7 @@
 
 **One login. Two organisations. Strict data separation. No cloud required.**
 
-**Authors:** Romano Samson & Megan Robyn Samson · **Licence:** MIT (see `LICENSE`)
+**Authors:** Romano Samson & Megan Robyn Samson · **Licence:**  (see `LICENSE`)
 
 Unified operational system for:
 
